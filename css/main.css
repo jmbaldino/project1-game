@@ -1,5 +1,16 @@
+body {
+    background-color: rgb(18, 3, 48);
+    display: flex;
+    justify-content: center;  
+    align-items: center;      
+    height: 100vh;            
+    margin: 0;
+}
+
+
 #board {
-    border: 5px solid green;
+    background-color: rgb(19, 0, 102);
+    border: 5px solid rgb(255, 255, 255);
     width: 1100px;
     height: 500px;
     padding: 0;
