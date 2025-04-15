@@ -78,24 +78,27 @@ class PlayerMover {
         return true;
     }
 
+    
     movePlayer() {
         if (!this.isAlive) return;
     
+        const step = 20; 
+    
         if (this.direction === 'ArrowUp') {
             if (this.positionY + this.playerElm.offsetHeight >= this.boardElm.clientHeight) return this.die();
-            this.positionY += 1;
+            this.positionY += step;
             this.playerElm.style.bottom = `${this.positionY}px`;
         } else if (this.direction === 'ArrowDown') {
             if (this.positionY <= 0) return this.die();
-            this.positionY -= 1;
+            this.positionY -= step;
             this.playerElm.style.bottom = `${this.positionY}px`;
         } else if (this.direction === 'ArrowLeft') {
             if (this.positionX <= 0) return this.die();
-            this.positionX -= 1;
+            this.positionX -= step;
             this.playerElm.style.left = `${this.positionX}px`;
         } else if (this.direction === 'ArrowRight') {
             if (this.positionX + this.playerElm.offsetWidth >= this.boardElm.clientWidth) return this.die();
-            this.positionX += 1;
+            this.positionX += step;
             this.playerElm.style.left = `${this.positionX}px`;
         }
     
@@ -150,7 +153,7 @@ class PlayerMover {
                 clearInterval(this.intervalId);
             }
 
-            this.intervalId = setInterval(this.movePlayer, 6);
+            this.intervalId = setInterval(this.movePlayer, 200);
         }
     }
 
