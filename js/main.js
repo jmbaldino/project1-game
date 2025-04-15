@@ -26,7 +26,7 @@ class PlayerMover {
 
         setInterval(() => {
             this.generateObstacle();
-        }, 1000);
+        }, 3000);
     }
 
     generateObstacle() {
@@ -39,7 +39,7 @@ class PlayerMover {
             newObstacle = new Obstacle(this.boardElm, 40, 20);
             validPosition = this.checkPositionCollision(newObstacle);
             attempts++;
-            
+
             if (!validPosition) {
                 this.boardElm.removeChild(newObstacle.element);
             }
@@ -80,33 +80,54 @@ class PlayerMover {
 
     movePlayer() {
         if (!this.isAlive) return;
-
-        const boardRect = this.boardElm.getBoundingClientRect();  
-        const playerRect = this.playerElm.getBoundingClientRect();
-
+    
         if (this.direction === 'ArrowUp') {
-            if (playerRect.top <= boardRect.top) return this.die();
+            if (this.positionY + this.playerElm.offsetHeight >= this.boardElm.clientHeight) return this.die();
             this.positionY += 1;
             this.playerElm.style.bottom = `${this.positionY}px`;
         } else if (this.direction === 'ArrowDown') {
-            if (playerRect.bottom >= boardRect.bottom) return this.die();
+            if (this.positionY <= 0) return this.die();
             this.positionY -= 1;
             this.playerElm.style.bottom = `${this.positionY}px`;
         } else if (this.direction === 'ArrowLeft') {
-            if (playerRect.left <= boardRect.left) return this.die();
+            if (this.positionX <= 0) return this.die();
             this.positionX -= 1;
             this.playerElm.style.left = `${this.positionX}px`;
         } else if (this.direction === 'ArrowRight') {
-            if (playerRect.right >= boardRect.right) return this.die();
+            if (this.positionX + this.playerElm.offsetWidth >= this.boardElm.clientWidth) return this.die();
             this.positionX += 1;
             this.playerElm.style.left = `${this.positionX}px`;
         }
-
+    
+        const playerLeft = this.positionX;
+        const playerRight = this.positionX + this.playerElm.offsetWidth;
+        const playerBottom = this.positionY;
+        const playerTop = this.positionY + this.playerElm.offsetHeight;
+    
+        for (let obstacle of this.obstacles) {
+            const obsLeft = parseInt(obstacle.element.style.left, 10);
+            const obsBottom = parseInt(obstacle.element.style.bottom, 10);
+            const obsRight = obsLeft + obstacle.element.offsetWidth;
+            const obsTop = obsBottom + obstacle.element.offsetHeight;
+    
+            const isColliding = !(
+                playerRight <= obsLeft ||
+                playerLeft >= obsRight ||
+                playerTop <= obsBottom ||
+                playerBottom >= obsTop
+            );
+    
+            if (isColliding) {
+                return this.die();
+            }
+        }
+    
         if (!this.hasMoved) {
             this.hasMoved = true;
             this.startObstacleGeneration();
         }
     }
+    
 
     rotatePlayer(dir) {
         const rotationMap = {
@@ -179,13 +200,4 @@ class Obstacle {
 window.onload = () => {
     new PlayerMover('player', 'board');
 };
-
-
-
-
-
-
-
-
-
 
