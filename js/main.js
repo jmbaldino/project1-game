@@ -10,9 +10,9 @@ class PlayerMover {
         this.isAlive = true;
 
         this.validDirections = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-        this.obstacles = [];  
-        this.occupiedPositions = []; 
-        this.hasMoved = false; 
+        this.obstacles = [];
+        this.occupiedPositions = [];
+        this.hasMoved = false;
 
         this.movePlayer = this.movePlayer.bind(this);
         this.rotatePlayer = this.rotatePlayer.bind(this);
@@ -26,46 +26,56 @@ class PlayerMover {
 
         setInterval(() => {
             this.generateObstacle();
-        }, 2000); 
+        }, 1000);
     }
 
     generateObstacle() {
         let newObstacle;
         let validPosition = false;
+        let attempts = 0;
+        const maxAttempts = 100;
 
-        while (!validPosition) {
-            newObstacle = new Obstacle(this.boardElm, 40, 20);  
+        while (!validPosition && attempts < maxAttempts) {
+            newObstacle = new Obstacle(this.boardElm, 40, 20);
             validPosition = this.checkPositionCollision(newObstacle);
-        }
-
-        this.obstacles.push(newObstacle);
-        this.occupiedPositions.push(newObstacle.position);
-    }
-
-    checkPositionCollision(newObstacle) {
-        for (let position of this.occupiedPositions) {
-            if (this.isCollision(newObstacle, position)) {
-                return false; 
+            attempts++;
+            
+            if (!validPosition) {
+                this.boardElm.removeChild(newObstacle.element);
             }
         }
 
-        return true; 
+        if (validPosition) {
+            this.obstacles.push(newObstacle);
+            this.occupiedPositions.push({
+                left: newObstacle.position.left,
+                bottom: newObstacle.position.bottom,
+                width: newObstacle.width,
+                height: newObstacle.height
+            });
+        }
     }
 
-    isCollision(newObstacle, existingPosition) {
-        const newLeft = newObstacle.element.offsetLeft;
-        const newBottom = newObstacle.element.offsetTop;
-        const existingLeft = existingPosition.left;
-        const existingBottom = existingPosition.bottom;
-        const newWidth = newObstacle.width;
-        const newHeight = newObstacle.height;
+    checkPositionCollision(newObstacle) {
+        const newLeft = newObstacle.position.left;
+        const newBottom = newObstacle.position.bottom;
+        const newRight = newLeft + newObstacle.width;
+        const newTop = newBottom + newObstacle.height;
 
-        return (
-            newLeft < existingLeft + newWidth &&
-            newLeft + newWidth > existingLeft &&
-            newBottom < existingBottom + newHeight &&
-            newBottom + newHeight > existingBottom
-        );
+        for (let obstacle of this.occupiedPositions) {
+            const existingLeft = obstacle.left;
+            const existingBottom = obstacle.bottom;
+            const existingRight = existingLeft + obstacle.width;
+            const existingTop = existingBottom + obstacle.height;
+
+            if (!(newRight <= existingLeft || 
+                  newLeft >= existingRight || 
+                  newTop <= existingBottom || 
+                  newBottom >= existingTop)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     movePlayer() {
@@ -93,8 +103,8 @@ class PlayerMover {
         }
 
         if (!this.hasMoved) {
-            this.hasMoved = true; 
-            this.startObstacleGeneration(); 
+            this.hasMoved = true;
+            this.startObstacleGeneration();
         }
     }
 
@@ -126,7 +136,7 @@ class PlayerMover {
     die() {
         this.isAlive = false;
         this.stopMoving();
-        alert('Game Over! Você bateu na parede.');
+        alert('Game Over!');
     }
 
     stopMoving() {
@@ -169,6 +179,7 @@ class Obstacle {
 window.onload = () => {
     new PlayerMover('player', 'board');
 };
+
 
 
 
